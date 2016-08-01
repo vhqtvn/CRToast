@@ -1,6 +1,7 @@
 //
 //  CRToast
 //  Copyright (c) 2014-2015 Collin Ruffenach. All rights reserved.
+//  Copyright (c) 2016 vhnvn.
 //
 
 #import "CRToastViewController.h"
@@ -52,10 +53,7 @@
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     
-    if (self.toastView) {
-        CGSize notificationSize = CRNotificationViewSizeForOrientation(self.notification.notificationType, self.notification.preferredHeight, toInterfaceOrientation);
-        self.toastView.frame = CGRectMake(0, 0, notificationSize.width, notificationSize.height);
-    }
+    [CRToastManager relayout];
 }
 
 @end

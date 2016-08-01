@@ -1,6 +1,7 @@
 //
 //  CRToast
 //  Copyright (c) 2014-2015 Collin Ruffenach. All rights reserved.
+//  Copyright (c) 2016 vhnvn.
 //
 
 #import <Foundation/Foundation.h>
@@ -97,8 +98,6 @@ typedef NS_ENUM(NSInteger, CRToastAnimationDirection) {
  */
 typedef NS_ENUM(NSInteger, CRToastAnimationType) {
     CRToastAnimationTypeLinear,
-    CRToastAnimationTypeSpring,
-    CRToastAnimationTypeGravity
 };
 
 /**
@@ -149,13 +148,6 @@ extern NSString *const kCRToastNotificationPreferredPaddingKey;
  The presentation type for the notification. Expects type `CRToastPresentationType`.
  */
 extern NSString *const kCRToastNotificationPresentationTypeKey;
-
-/**
- Indicates whether the notification should slide under the staus bar, leaving it visible or not.
- Making this YES with `kCRToastNotificationTypeKey` set to `CRToastTypeStatusBar` isn't sensible and will look
- odd. Expects type `BOOL`.
- */
-extern NSString *const kCRToastUnderStatusBarKey;
 
 /**
  Keep toast within navigation bar border.
@@ -291,11 +283,6 @@ extern NSString *const kCRToastSubtitleTextShadowOffsetKey;
 extern NSString *const kCRToastSubtitleTextMaxNumberOfLinesKey;
 
 /**
- The status bar style for the navigation bar.  Expects type `UIStatusBarStyle`.
- */
-extern NSString *const kCRToastStatusBarStyleKey;
-
-/**
  The background color for the notification. Expects type `UIColor`.
  */
 extern NSString *const kCRToastBackgroundColorKey;
@@ -368,6 +355,7 @@ extern NSString *const kCRToastCaptureDefaultWindowKey;
 #pragma mark - CRToast Interface
 @interface CRToast : NSObject <UIGestureRecognizerDelegate>
 
+@property (nonatomic) CGRect targetFrame;
 @property (nonatomic, strong) NSUUID *uuid;
 @property (nonatomic, assign) CRToastState state;
 
@@ -390,9 +378,6 @@ extern NSString *const kCRToastCaptureDefaultWindowKey;
 @property (nonatomic, readonly) UIView *notificationView;
 @property (nonatomic, readonly) CGRect notificationViewAnimationFrame1;
 @property (nonatomic, readonly) CGRect notificationViewAnimationFrame2;
-@property (nonatomic, readonly) UIView *statusBarView;
-@property (nonatomic, readonly) CGRect statusBarViewAnimationFrame1;
-@property (nonatomic, readonly) CGRect statusBarViewAnimationFrame2;
 @property (nonatomic, strong) UIDynamicAnimator *animator;
 
 //Read Only Convinence Properties Providing Default Values or Values from Options

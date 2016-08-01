@@ -1,6 +1,7 @@
 //
 //  CRToast
 //  Copyright (c) 2014-2015 Collin Ruffenach. All rights reserved.
+//  Copyright (c) 2016 vhnvn.
 //
 
 #import <Foundation/Foundation.h>
@@ -10,6 +11,10 @@
  */
 
 @interface CRToastManager : NSObject
+/**
+ Set number of maximum notifications displayed at a time
+ */
++ (void)setMaxNotifications: (NSUInteger)maxNotifications;
 
 /**
  Sets the default options that CRToast will use when displaying a notification
@@ -50,13 +55,6 @@
 + (void)showNotificationWithMessage:(NSString*)message completionBlock:(void (^)(void))completion;
 
 /**
- Immidiately begins the (un)animated dismisal of a notification
- @param animated If YES the notification will dismiss with its configure animation, otherwise it will immidiately disappear
- */
-
-+ (void)dismissNotification:(BOOL)animated;
-
-/**
  Immidiately begins the (un)animated dismisal of a notification and canceling all others
  @param animated If YES the notification will dismiss with its configure animation, otherwise it will immidiately disappear
  */
@@ -79,6 +77,11 @@
 /**
  Checks if there is a notification currently being displayed
  */
-+ (BOOL)isShowingNotification;
++ (NSUInteger)showingNotificationsCount;
 
+
+/**
+ Relayout the showing notification (when orientation changed)
+ */
++ (void) relayout;
 @end

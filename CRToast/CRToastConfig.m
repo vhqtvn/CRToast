@@ -1,6 +1,7 @@
 //
 //  CRToast
 //  Copyright (c) 2014-2015 Collin Ruffenach. All rights reserved.
+//  Copyright (c) 2016 vhnvn.
 //
 
 #import <QuartzCore/QuartzCore.h>
@@ -181,7 +182,6 @@ NSString *const kCRToastNotificationPreferredHeightKey      = @"kCRToastNotifica
 NSString *const kCRToastNotificationPreferredPaddingKey     = @"kCRToastNotificationPreferredPaddingKey";
 NSString *const kCRToastNotificationPresentationTypeKey     = @"kCRToastNotificationPresentationTypeKey";
 
-NSString *const kCRToastUnderStatusBarKey                   = @"kCRToastUnderStatusBarKey";
 NSString *const kCRToastKeepNavigationBarBorderKey          = @"kCRToastKeepNavigationBarBorderKey";
 
 NSString *const kCRToastAnimationInTypeKey                  = @"kCRToastAnimationInTypeKey";
@@ -212,7 +212,6 @@ NSString *const kCRToastSubtitleTextAlignmentKey            = @"kCRToastSubtitle
 NSString *const kCRToastSubtitleTextShadowColorKey          = @"kCRToastSubtitleTextShadowColorKey";
 NSString *const kCRToastSubtitleTextShadowOffsetKey         = @"kCRToastSubtitleTextShadowOffsetKey";
 NSString *const kCRToastSubtitleTextMaxNumberOfLinesKey     = @"kCRToastSubtitleTextMaxNumberOfLinesKey";
-NSString *const kCRToastStatusBarStyleKey                   = @"kCRToastStatusBarStyleKey";
 
 NSString *const kCRToastBackgroundColorKey                  = @"kCRToastBackgroundColorKey";
 NSString *const kCRToastBackgroundViewKey                   = @"kCRToastBackgroundViewKey";
@@ -245,7 +244,7 @@ static NSString *                    kCRToastIdentifer                      = ni
 static CRToastAnimationType          kCRAnimationTypeDefaultIn              = CRToastAnimationTypeLinear;
 static CRToastAnimationType          kCRAnimationTypeDefaultOut             = CRToastAnimationTypeLinear;
 static CRToastAnimationDirection     kCRInAnimationDirectionDefault         = CRToastAnimationDirectionTop;
-static CRToastAnimationDirection     kCROutAnimationDirectionDefault        = CRToastAnimationDirectionBottom;
+static CRToastAnimationDirection     kCROutAnimationDirectionDefault        = CRToastAnimationDirectionTop;
 static NSTimeInterval                kCRAnimateInTimeIntervalDefault        = 0.4;
 static NSTimeInterval                kCRTimeIntervalDefault                 = 2.0f;
 static NSTimeInterval                kCRAnimateOutTimeIntervalDefault       = 0.4;
@@ -293,7 +292,6 @@ static NSDictionary *                kCRToastKeyClassMap                    = ni
 @interface CRToast ()
 @property (nonatomic, readonly) BOOL snapshotWindow;
 @property (strong, nonatomic) CRToastView *privateNotificationView;
-@property (strong, nonatomic) UIView *privateStatusBarView;
 @end
 
 @implementation CRToast
@@ -313,7 +311,6 @@ static NSDictionary *                kCRToastKeyClassMap                    = ni
                                 kCRToastNotificationPreferredHeightKey      : NSStringFromClass([@(kCRNotificationPreferredHeightDefault) class]),
                                 kCRToastNotificationPreferredPaddingKey      : NSStringFromClass([@(kCRNotificationPreferredPaddingDefault) class]),
                                 kCRToastNotificationPresentationTypeKey     : NSStringFromClass([@(kCRNotificationPresentationTypeDefault) class]),
-                                kCRToastUnderStatusBarKey                   : NSStringFromClass([@(kCRDisplayUnderStatusBarDefault) class]),
                                 kCRToastKeepNavigationBarBorderKey          : NSStringFromClass([@(kCRToastKeepNavigationBarBorderDefault) class]),
                                 
                                 kCRToastIdentifierKey                       : NSStringFromClass([NSString class]),
@@ -344,7 +341,6 @@ static NSDictionary *                kCRToastKeyClassMap                    = ni
                                 kCRToastSubtitleTextShadowColorKey          : NSStringFromClass([UIColor class]),
                                 kCRToastSubtitleTextShadowOffsetKey         : NSStringFromClass([[NSValue valueWithCGSize:kCRSubtitleTextShadowOffsetDefault] class]),
                                 kCRToastSubtitleTextMaxNumberOfLinesKey     : NSStringFromClass([@(kCRSubtitleTextMaxNumberOfLinesDefault) class]),
-                                kCRToastStatusBarStyleKey                   : NSStringFromClass([@(kCRStatusBarStyleDefault) class]),
                                 
                                 kCRToastBackgroundColorKey                  : NSStringFromClass([UIColor class]),
                                 kCRToastBackgroundViewKey                   : NSStringFromClass([UIView class]),
@@ -387,8 +383,6 @@ static NSDictionary *                kCRToastKeyClassMap                    = ni
     if (defaultOptions[kCRToastNotificationPresentationTypeKey])    kCRNotificationPresentationTypeDefault  = [defaultOptions[kCRToastNotificationPresentationTypeKey] integerValue];
     if (defaultOptions[kCRToastIdentifierKey])                      kCRToastIdentifer                       = defaultOptions[kCRToastIdentifierKey];
     
-    if (defaultOptions[kCRToastUnderStatusBarKey])                  kCRDisplayUnderStatusBarDefault         = [defaultOptions[kCRToastUnderStatusBarKey] boolValue];
-    
     if (defaultOptions[kCRToastAnimationInTypeKey])                 kCRAnimationTypeDefaultIn               = [defaultOptions[kCRToastAnimationInTypeKey] integerValue];
     if (defaultOptions[kCRToastAnimationOutTypeKey])                kCRAnimationTypeDefaultOut              = [defaultOptions[kCRToastAnimationOutTypeKey] integerValue];
     if (defaultOptions[kCRToastAnimationInDirectionKey])            kCRInAnimationDirectionDefault          = [defaultOptions[kCRToastAnimationInDirectionKey] integerValue];
@@ -409,8 +403,6 @@ static NSDictionary *                kCRToastKeyClassMap                    = ni
     if (defaultOptions[kCRToastTextShadowColorKey])                 kCRTextShadowColorDefault               = defaultOptions[kCRToastTextShadowColorKey];
     if (defaultOptions[kCRToastTextShadowOffsetKey])                kCRTextShadowOffsetDefault              = [defaultOptions[kCRToastTextShadowOffsetKey] CGSizeValue];
     if (defaultOptions[kCRToastTextMaxNumberOfLinesKey])            kCRTextMaxNumberOfLinesDefault          = [defaultOptions[kCRToastTextMaxNumberOfLinesKey] integerValue];
-    
-    if (defaultOptions[kCRToastStatusBarStyleKey])                  kCRStatusBarStyleDefault                = [defaultOptions[kCRToastStatusBarStyleKey] integerValue];
     
     if (defaultOptions[kCRToastSubtitleTextKey])                    kCRSubtitleTextDefault                  = defaultOptions[kCRToastSubtitleTextKey];
     if (defaultOptions[kCRToastSubtitleFontKey])                    kCRSubtitleFontDefault                  = defaultOptions[kCRToastSubtitleFontKey];
@@ -461,34 +453,12 @@ static NSDictionary *                kCRToastKeyClassMap                    = ni
     return CRNotificationViewFrame(self.notificationType, self.outAnimationDirection, self.preferredHeight);
 }
 
-- (UIView *)statusBarView {
-    return self.privateStatusBarView;
-}
-
-- (UIView *)privateStatusBarView {
-    if (!_privateStatusBarView) {
-        _privateStatusBarView = [[UIView alloc] initWithFrame:self.statusBarViewAnimationFrame1];
-        if (self.snapshotWindow) {
-            [_privateStatusBarView addSubview:CRStatusBarSnapShotView(self.displayUnderStatusBar)];
-        }
-        _privateStatusBarView.clipsToBounds = YES;
-    }
-    return _privateStatusBarView;
-}
-
-- (CGRect)statusBarViewAnimationFrame1 {
-    return CRStatusBarViewFrame(self.notificationType, self.inAnimationDirection, self.preferredHeight);
-}
-
-- (CGRect)statusBarViewAnimationFrame2 {
-    return CRStatusBarViewFrame(self.notificationType, self.outAnimationDirection, self.preferredHeight);
-}
-
 #pragma mark - Gesture Recognizer Actions
 
 - (void)swipeGestureRecognizerSwiped:(CRToastSwipeGestureRecognizer*)swipeGestureRecognizer {
     if (swipeGestureRecognizer.automaticallyDismiss) {
-        [CRToastManager dismissNotification:YES];
+        //TODO:
+//        [CRToastManager dismissNotification:YES];
     }
     
     if (swipeGestureRecognizer.block) {
@@ -498,7 +468,8 @@ static NSDictionary *                kCRToastKeyClassMap                    = ni
 
 - (void)tapGestureRecognizerTapped:(CRToastTapGestureRecognizer*)tapGestureRecognizer {
     if (tapGestureRecognizer.automaticallyDismiss) {
-        [CRToastManager dismissNotification:YES];
+        //TODO:
+//        [CRToastManager dismissNotification:YES];
     }
     
     if (tapGestureRecognizer.block) {
@@ -553,8 +524,6 @@ static NSDictionary *                kCRToastKeyClassMap                    = ni
 }
 
 - (BOOL)displayUnderStatusBar {
-    return _options[kCRToastUnderStatusBarKey] ?
-    [self.options[kCRToastUnderStatusBarKey] boolValue] :
     kCRDisplayUnderStatusBarDefault;
 }
 
@@ -724,10 +693,6 @@ static NSDictionary *                kCRToastKeyClassMap                    = ni
     kCRSubtitleTextMaxNumberOfLinesDefault;
 }
 
-- (UIStatusBarStyle)statusBarStyle {
-    return _options[kCRToastStatusBarStyleKey] ? [_options[kCRToastStatusBarStyleKey] integerValue] : kCRStatusBarStyleDefault;
-}
-
 - (BOOL)forceUserInteraction {
     return _options[kCRToastForceUserInteractionKey] ? [_options[kCRToastForceUserInteractionKey] boolValue] : kCRForceUserInteractionDefault;
 }
@@ -876,19 +841,7 @@ static CGFloat kCRCollisionTweak = 0.5;
             NSLog(@"[CRToast] : WARNING - It is not sensible to have set kCRToastNotificationTypeKey to @(CRToastTypeStatusBar) and configuring subtitle text to show. I'll do what you ask, but it'll probably work weird");
         }
     }
-    
-    if (self.inAnimationType == CRToastAnimationTypeGravity) {
-        if (self.animateInTimeInterval != kCRAnimateInTimeIntervalDefault) {
-            NSLog(@"[CRToast] : WARNING - It is not sensible to have set kCRToastAnimationInTypeKey to @(CRToastAnimationTypeGravity) and configure a kCRToastAnimationInTimeIntervalKey. Gravity and distance will be driving the in animation duration here. kCRToastAnimationGravityMagnitudeKey can be modified to change the in animation duration.");
-        }
-    }
-    
-    if (self.outAnimationType == CRToastAnimationTypeGravity) {
-        if (self.animateOutTimeInterval != kCRAnimateOutTimeIntervalDefault) {
-            NSLog(@"[CRToast] : WARNING - It is not sensible to have set kCRToastAnimationOutTypeKey to @(CRToastAnimationTypeGravity) and configure a kCRToastAnimationOutTimeIntervalKey. Gravity and distance will be driving the in animation duration here. kCRToastAnimationGravityMagnitudeKey can be modified to change the in animation duration.");
-        }
-    }
-    
+        
     if (self.forceUserInteraction) {
         if (self.gestureRecognizers.count == 0) {
             NSLog(@"[CRToast] : WARNING - It is not sensible to have set kCRToastForceUserInteractionKey to @(YES) and not set any interaction responders. This notification can only be dismissed programmatically.");
